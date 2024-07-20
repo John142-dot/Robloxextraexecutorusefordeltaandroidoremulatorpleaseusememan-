@@ -1,0 +1,93 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local function createCreditsScreen()
+    -- Create GUI elements
+    local creditsGui = Instance.new("ScreenGui", playerGui)
+    creditsGui.Name = "CreditsGui"
+    
+    local creditsFrame = Instance.new("Frame", creditsGui)
+    creditsFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
+    creditsFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    creditsFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    creditsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    creditsFrame.BorderSizePixel = 0
+    
+    local creditsText = Instance.new("TextLabel", creditsFrame)
+    creditsText.Size = UDim2.new(1, 0, 1, 0)
+    creditsText.BackgroundTransparency = 1
+    creditsText.Text = "Zonkey Team:\n\n-(Credits to all) Zonkey9070\n- Contributors\ AceBryan, b1u3k1d\n- Special Thanks\nRvy Ocer\nJoin our Discord: https://discord.gg/invite/jj4NC9ppSC"
+    creditsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    creditsText.TextScaled = true
+    creditsText.TextWrapped = true
+    creditsText.TextStrokeTransparency = 0.8
+
+    -- Close Button
+    local closeButton = Instance.new("TextButton", creditsFrame)
+    closeButton.Size = UDim2.new(0, 40, 0, 40)
+    closeButton.Position = UDim2.new(1, -50, 0, 10)
+    closeButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.TextScaled = true
+    closeButton.TextStrokeTransparency = 0.8
+    closeButton.BorderSizePixel = 0
+    closeButton.AnchorPoint = Vector2.new(1, 0)
+    
+    closeButton.MouseButton1Click:Connect(function()
+        creditsGui:Destroy() -- Remove credits GUI
+        -- Load and execute the main script
+        local mainScriptUrl = "https://raw.githubusercontent.com/John142-dot/lordoftheringslastbossnoserealrathouseiloveinthewestsong/main/executorkrankenwagen"
+        local success, result = pcall(function()
+            loadstring(game:HttpGet(mainScriptUrl))()
+        end)
+        if not success then
+            warn("Failed to load script: " .. result)
+        end
+    end)
+
+    -- Tween effect for modern design
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut)
+    local tweenGoal = {Size = UDim2.new(0.8, 0, 0.8, 0)}
+    local tween = TweenService:Create(creditsFrame, tweenInfo, tweenGoal)
+    
+    tween:Play()
+    wait(3) -- Show credits for 3 seconds
+
+    -- Optional: Automatically destroy after showing credits
+    -- creditsGui:Destroy()
+    
+    -- Draggable functionality
+    local dragging, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        creditsFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    creditsFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = creditsFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    creditsFrame.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            update(input)
+        end
+    end)
+end
+
+createCreditsScreen()
